@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://puzikogusik.github.io/ModDevTool/sitemap.xml

@@ -1,0 +1,24 @@
+{
+  "name": "moddevtool",
+  "version": "7.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/prepare-site.mjs",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate"
+  },
+  "dependencies": {
+    "@netlify/database": "^2.0.1",
+    "@netlify/functions": "^6.0.2",
+    "@netlify/identity": "^2.0.0",
+    "drizzle-orm": "^1.0.0-beta.22"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "drizzle-kit": "^1.0.0-beta.22",
+    "esbuild": "^0.28.2",
+    "jszip": "^3.10.2",
+    "typescript": "^7.0.2"
+  }
+}

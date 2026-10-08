@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Код и javac — ModDevTool</title>
+  <link rel="stylesheet" href="mdt-features.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script type="module" src="mdt-workspace.js"></script>
+</head>
+<body class="mdt-workbench">
+  <header class="mdt-workbench-header"><a href="index.html" class="mdt-brand">MD<span>T</span><small>CODE LAB</small></a><a href="index.html">← Конструктор</a><button id="mdt-account-button" class="mdt-tool-button" type="button">Войти</button></header>
+  <main>
+    <div class="mdt-workbench-intro"><div><p class="mdt-eyebrow">SOURCE → COMPILE → CREATE</p><h1>Ваш код.<br><span>Ваши правила.</span></h1><p class="mdt-muted">Java, HTML, CSS, JavaScript, JSON и mcfunction — в одном проекте.</p></div><div class="mdt-local-badge"><span></span> javac работает на вашем устройстве<small>Исходники не отправляются на сервер</small></div></div>
+    <section class="mdt-project-toolbar" aria-label="Проект">
+      <label>Тип проекта<select id="project-kind"><option value="java">Java</option><option value="plugin">Плагин</option><option value="mod">Мод</option><option value="datapack">Датапак</option><option value="web">HTML / CSS / JS</option></select></label>
+      <button id="import-project" class="mdt-tool-button" type="button">↑ Открыть ZIP / файл</button><input id="project-upload" type="file" accept=".zip,.java,.html,.css,.js,.json,.mcfunction,.mcmeta,.yml,.yaml,.toml,.properties,.gradle,.txt" hidden>
+      <button id="export-project" class="mdt-tool-button" type="button">↓ Исходники ZIP</button>
+      <div class="mdt-toolbar-spacer"></div><button id="preview-project" class="mdt-tool-button" type="button">▷ Веб-просмотр</button><button id="compile-project" class="mdt-tool-button mdt-tool-primary" type="button">⚒ javac / Собрать</button>
+    </section>
+    <section class="mdt-editor-shell" aria-label="Редактор кода">
+      <aside class="mdt-file-sidebar"><div class="mdt-sidebar-label">ФАЙЛЫ ПРОЕКТА</div><div id="project-files" class="mdt-file-list"></div><form id="add-file-form"><label for="new-file-path">Новый файл / путь</label><input id="new-file-path" placeholder="src/main/java/Example.java" autocomplete="off" required maxlength="180"><button class="mdt-tool-button" type="submit">+ Добавить файл</button></form><button class="mdt-text-button" type="button" id="remove-file">Удалить выбранный файл</button></aside>
+      <div class="mdt-code-pane"><div class="mdt-editor-title"><span id="active-file">Main.java</span><span id="active-language">JAVA</span></div><label class="mdt-sr-only" for="source-editor">Исходный код выбранного файла</label><textarea id="source-editor" class="mdt-source-editor" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off"></textarea><div class="mdt-editor-footer"><span id="editor-position">Строка 1</span><span>UTF-8 · Tab: 2 пробела</span></div></div>
+    </section>
+    <section class="mdt-compiler-options" aria-label="Настройки компиляции"><label>Java / --release<select id="java-release"><option value="8">8</option><option value="11">11</option><option value="17" selected>17</option></select></label><button id="import-dependencies" class="mdt-tool-button" type="button">+ API / зависимости JAR</button><input id="dependency-upload" type="file" accept=".jar" multiple hidden><span id="dependency-list" class="mdt-muted">Без зависимостей</span><button id="clear-dependencies" type="button" class="mdt-text-button">Очистить</button><button id="cancel-compile" type="button" class="mdt-tool-button" hidden>Остановить</button></section>
+    <p class="mdt-workbench-note">Для плагинов добавьте API вашего сервера; для модов — зависимости загрузчика и Minecraft. Java 21+ и полный Gradle-процесс (remap / reobfuscation) здесь не поддерживаются: такие проекты собирайте через Gradle. Датапаки не используют Java — они проверяются и упаковываются в ZIP.</p>
+    <section class="mdt-output-panel" aria-label="Результаты"><div class="mdt-output-heading"><h2>Вывод сборки</h2><span id="compile-status" role="status" aria-live="polite">Готов к работе</span></div><pre id="compile-output" tabindex="0">Откройте проект из конструктора или начните с шаблона. При первой Java-сборке загружается браузерная JVM.</pre><a id="artifact-download" class="mdt-artifact" hidden download>↓ Скачать результат</a></section>
+    <section id="preview-panel" class="mdt-preview-panel" hidden><div class="mdt-output-heading"><h2>Изолированный веб-просмотр</h2><button id="close-preview" class="mdt-tool-button" type="button">Закрыть</button></div><iframe id="web-preview" title="Предпросмотр HTML, CSS и JavaScript" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe></section>
+    <p class="mdt-workbench-note">Правки живут только в этой вкладке. Скачайте ZIP перед закрытием — проект не сохраняется автоматически.</p>
+  </main>
+  <script type="module" src="assets/mdt-auth.js"></script>
+</body>
+</html>

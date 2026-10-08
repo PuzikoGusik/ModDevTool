@@ -79,6 +79,9 @@
 <script src="mdt-jar-builder.js"></script>
 <script src="mdt-datapack-builder.js"></script>
 <script src="mdt-plugin-builder.js"></script>
+<link rel="stylesheet" href="mdt-features.css">
+<script type="module" src="assets/mdt-auth.js"></script>
+<script src="mdt-project-bridge.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.js" crossorigin="anonymous"></script>
 <!-- Supabase client: publishable key is safe for the browser only when RLS is enabled in Supabase. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
@@ -1227,10 +1230,13 @@ window.state = {
       <button class="tab-btn" onclick="switchTab('crash')">🔍 Проверка сборки</button>
       <button class="tab-btn" onclick="switchTab('plugins')">🔌 Плагины</button>
       <button class="tab-btn" onclick="switchTab('datapack')">📂 Датапаки</button>
+      <a class="tab-btn mdt-workspace-link" href="workspace.html">⌨ Код / javac</a>
+      <button class="tab-btn" id="mdt-edit-generated" type="button" disabled title="Сначала создайте проект">↗ Код проекта</button>
       <button class="tab-btn" onclick="switchTab('goose-chat')">🪿 Чат с Гусем</button>
       <button class="tab-btn" onclick="switchTab('settings')">⚙ Настройки</button>
     </div>
     <div class="topbar-right">
+      <button class="btn mdt-account-button" id="mdt-account-button" type="button">Войти</button>
       <div class="sound-indicator" id="sound-toggle-btn" onclick="toggleSoundGlobal(this)" title="Звуковые эффекты" data-mct="sound-toggle"><span id="sound-toggle-icon">🔊</span></div>
       <!-- Persistent, rounded profile avatar -->
       <button id="topbar-profile-btn" class="icon-btn profile-btn profile-avatar-button" title="Профиль" onclick="openFullProfile()" aria-label="Открыть профиль">
@@ -8698,7 +8704,9 @@ function identityErrorMessage(error) {
   return {
     'nickname-format':'Никнейм должен содержать 3–20 букв, цифр, пробелов, дефисов или подчёркиваний.',
     'tg-format':'Telegram-юз должен содержать 5–32 символа: латинские буквы, цифры или подчёркивание.',
-    nickname:'Этот никнейм уже занят в данном браузере.',
+    nickname:'Этот никнейм уже занят.',
+    'login-required':'Войдите в аккаунт, чтобы сохранить никнейм.',
+    'server-error':'Не удалось сохранить никнейм. Повторите попытку позже.',
     tg:'Этот Telegram-юз уже занят в данном браузере.'
   }[error] || 'Не удалось сохранить идентичность.';
 }
@@ -8919,14 +8927,14 @@ function showIdentityVerifyModal() {
   document.body.appendChild(modal);
 }
 
-function submitIdentityVerify() {
+async function submitIdentityVerify() {
   const nick = document.getElementById('identity-nick').value.trim();
   const tg = document.getElementById('identity-tg').value.trim();
   document.getElementById('identity-nick-err').style.display = 'none';
   document.getElementById('identity-tg-err').style.display = 'none';
   if (!nick || !tg) return;
 
-  const result = registerIdentity(nick, tg);
+  const result = await registerIdentity(nick, tg);
   if (!result.ok) {
     if (result.error === 'nickname') document.getElementById('identity-nick-err').style.display = 'block';
     if (result.error === 'tg') document.getElementById('identity-tg-err').style.display = 'block';
@@ -9548,14 +9556,14 @@ function toggleBanDetails() {
   if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
 }
 
-function saveFullProfileEdits() {
+async function saveFullProfileEdits() {
   const nickInput = document.getElementById('edit-nickname-input');
   const bioInput = document.getElementById('edit-bio-input');
   const tgInput = document.getElementById('edit-tg-input');
   const nickname = (nickInput?.value || '').trim() || currentUser.nickname;
   const bio = (bioInput?.value || '').trim().slice(0, 200);
   const tg = (tgInput?.value || '').trim();
-  const identity = registerIdentity(nickname, tg);
+  const identity = await registerIdentity(nickname, tg);
   if (!identity.ok) {
     showToast('❌ ' + identityErrorMessage(identity.error), 3600);
     return;

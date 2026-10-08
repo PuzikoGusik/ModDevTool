@@ -1,0 +1,12 @@
+[build]
+command = "npm run build"
+publish = "public"
+
+[functions]
+directory = "netlify/functions"
+
+[[headers]]
+for = "/compiler.html"
+[headers.values]
+Referrer-Policy = "no-referrer"
+X-Content-Type-Options = "nosniff"

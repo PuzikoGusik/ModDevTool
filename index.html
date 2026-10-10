@@ -79,9 +79,11 @@
 <script src="mdt-jar-builder.js"></script>
 <script src="mdt-datapack-builder.js"></script>
 <script src="mdt-plugin-builder.js"></script>
+<script src="mdt-auth.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.js" crossorigin="anonymous"></script>
 <!-- Supabase client: publishable key is safe for the browser only when RLS is enabled in Supabase. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<link rel="stylesheet" href="mdt-auth.css">
 <style>
 :root {
   --bg:#0a0e1a;--bg2:#0f1520;--bg3:#151c2e;--panel:#111827;--panel2:#1a2235;
@@ -892,13 +894,13 @@ window.state = {
       Кристаллы нужны для генерации модов. Компиляция тратит кристаллы, а сама компиляция мода — приносит их (награда всегда больше траты):<br><br>
       <table style="width:100%;text-align:left;border-collapse:collapse;font-size:13px;">
         <tr style="color:var(--text3);"><td></td><td>Стоимость</td><td>Награда</td></tr>
-        <tr><td>🟢 Простой</td><td><strong style="color:var(--danger)">−35 💎</strong></td><td><strong style="color:var(--crystal2)">+100 💎</strong></td></tr>
-        <tr><td>🟡 Средний</td><td><strong style="color:var(--danger)">−50 💎</strong></td><td><strong style="color:var(--crystal2)">+269 💎</strong></td></tr>
-        <tr><td>🔴 Сложный</td><td><strong style="color:var(--danger)">−100 💎</strong></td><td><strong style="color:var(--crystal2)">+567 💎</strong></td></tr>
-        <tr><td>💀 Эпический</td><td><strong style="color:var(--danger)">−500 💎</strong></td><td><strong style="color:var(--crystal2)">+2000 💎</strong></td></tr>
+        <tr><td>🟢 Простой</td><td><strong style="color:var(--danger)">−5 💎</strong></td><td><strong style="color:var(--crystal2)">+100 💎</strong></td></tr>
+        <tr><td>🟡 Средний</td><td><strong style="color:var(--danger)">−15 💎</strong></td><td><strong style="color:var(--crystal2)">+269 💎</strong></td></tr>
+        <tr><td>🔴 Сложный</td><td><strong style="color:var(--danger)">−35 💎</strong></td><td><strong style="color:var(--crystal2)">+567 💎</strong></td></tr>
+        <tr><td>💀 Эпический</td><td><strong style="color:var(--danger)">−70 💎</strong></td><td><strong style="color:var(--crystal2)">+2000 💎</strong></td></tr>
       </table>
     </p>
-    <button class="btn btn-crystal" onclick="closeCrystalModal()" style="width:100%;">✓ Понятно</button>
+    <button class="btn btn-crystal" onclick="closeCrystalModal()" style="width:100%;">✓ Понятно!</button>
   </div>
 </div>
 
@@ -2662,6 +2664,7 @@ window.state = {
         <button class="btn btn-primary" onclick="plPreview()">👁 Предпросмотр файлов и проверка</button>
         <pre id="pl-preview" style="display:none;margin-top:10px;font-family:var(--mono);font-size:12px;white-space:pre-wrap;color:var(--text2);max-height:320px;overflow:auto;"></pre>
       </div>
+      <button class="btn btn-primary" id="pl-compile-btn" style="display:none;width:100%;padding:14px;font-size:14px;font-weight:700;margin-bottom:10px;" onclick="plCompileOnServer()">⚙ Скомпилировать .jar на сервере</button>
       <button class="btn btn-success" style="width:100%;padding:14px;font-size:14px;font-weight:700;" onclick="plExport()">📦 Экспорт проекта плагина (.zip)</button>
       <div style="font-size:12px;color:var(--text3);margin-top:10px;line-height:1.7;">Это ранняя версия конструктора: команды и события. Код собирается локально — браузер не компилирует Java.</div>
     </div>
@@ -2827,8 +2830,8 @@ window.state = {
 // ══════════════════════════════════════════════
 // Do not put a Supabase secret key or service_role key in this HTML file.
 const MDT_SUPABASE_CONFIG = Object.freeze({
-  url: 'https://xbwpfddxfyaehqgzrsen.supabase.co',
-  publishableKey: 'sb_publishable_ftRAT8l9pAjTcnNsK6rIIA_HtzE0k3k'
+  url: 'https://arvnmwdlwqhgetlffshv.supabase.co',
+  publishableKey: 'sb_publishable_n1ul8Fj6IsSTK3XTQ4U3Jw_joh6fq2s'
 });
 let mdtSupabase = null;
 let mdtSupabaseStatus = 'not-initialized';
@@ -5424,8 +5427,9 @@ function getLocalGooseReply(message) {
   return 'Опиши версию Minecraft, загрузчик и симптомы. Чем точнее лог или описание проекта, тем конкретнее будет разбор.';
 }
 
-// Edge Function развёрнута в проекте Supabase ModDevTool. Ключ Gemini остаётся только в Secrets.
-window.MDT_GOOSE_ENDPOINT = 'https://xbwpfddxfyaehqgzrsen.supabase.co/functions/v1/goose-assistant';
+// Edge Function «goose-assistant» должна быть развёрнута в ТОМ ЖЕ проекте Supabase, что и вход (токен сессии проверяется там).
+// Пока функции нет, «Гусь» автоматически работает в локальном режиме. Ключ Gemini хранится только в Secrets функции.
+window.MDT_GOOSE_ENDPOINT = MDT_SUPABASE_CONFIG.url + '/functions/v1/goose-assistant';
 
 async function requestGooseServer(message, files) {
   const endpoint = String(window.MDT_GOOSE_ENDPOINT || '').trim();
@@ -6757,6 +6761,53 @@ async function plExport() {
 }
 
 window.addEventListener('load', plInitForm);
+
+function plUpdateCompileBtn() {
+  const b = document.getElementById('pl-compile-btn');
+  if (b) b.style.display = String(window.MDT_COMPILE_ENDPOINT || '').trim() ? '' : 'none';
+}
+
+async function plCompileOnServer() {
+  const base = String(window.MDT_COMPILE_ENDPOINT || '').trim().replace(/\/+$/, '');
+  if (!base) { showToast('❌ Сервер компиляции не настроен (MDT_COMPILE_ENDPOINT)', 3500); return; }
+  const spec = plCollectSpec();
+  if (!spec.commands.length && !['join', 'quit', 'death', 'blockbreak', 'title', 'kit'].some(t => document.getElementById('pl-ev-' + t)?.checked)) {
+    showToast('❌ Добавь хотя бы одну команду или событие', 2800);
+    return;
+  }
+  const btn = document.getElementById('pl-compile-btn');
+  const out = document.getElementById('pl-preview');
+  if (btn) { btn.disabled = true; btn.dataset.label = btn.dataset.label || btn.textContent; btn.textContent = '⏳ Компилирую…'; }
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (window.MDT_COMPILE_TOKEN) headers.Authorization = 'Bearer ' + window.MDT_COMPILE_TOKEN;
+    const r = await fetch(base + '/compile-plugin', { method: 'POST', headers, body: JSON.stringify({ spec }), credentials: 'omit' });
+    if (!r.ok) {
+      let j = {};
+      try { j = await r.json(); } catch (e) { /* не JSON */ }
+      if (out) {
+        out.textContent = '✕ ' + (j.message || ('Ошибка сервера ' + r.status)) + (j.log ? '\n\n' + j.log : '');
+        out.style.display = 'block';
+      }
+      showToast('❌ ' + (j.message || ('Сервер вернул ' + r.status)), 4500);
+      return;
+    }
+    const blob = await r.blob();
+    const name = (r.headers.get('x-filename') || 'plugin.jar').replace(/[^A-Za-z0-9._-]/g, '_').replace(/^\.+/, '') || 'plugin.jar';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    if (out) { out.textContent = '✓ Скомпилировано: ' + name + ' (' + (r.headers.get('x-compiler') || 'javac') + ')\nПоложите файл в папку plugins/ сервера.'; out.style.display = 'block'; }
+    showToast('✅ ' + name + ' готов — положите в plugins/', 4000);
+  } catch (e) {
+    showToast('❌ Нет связи с сервером компиляции. Он запущен? Разрешён ли ваш сайт (MDT_ALLOWED_ORIGIN)?', 5000);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label || '⚙ Скомпилировать .jar на сервере'; }
+  }
+}
+
+window.addEventListener('load', plUpdateCompileBtn);
 
 // ══════════════════════════════════════════════
 //  LINK CHECK — проверка ссылок + подсказка-лампочка
@@ -10272,6 +10323,9 @@ document.addEventListener('keydown', (e) => {
 //  SERVER BUILD CONTRACT — браузер не имитирует Java-компиляцию
 // ══════════════════════════════════════════════
 window.MDT_BUILD_ENDPOINT = window.MDT_BUILD_ENDPOINT || '';
+// Сервер компиляции плагинов (mdt-compile-server.mjs). Пример: 'http://127.0.0.1:8788'. Пусто — кнопка скрыта.
+window.MDT_COMPILE_ENDPOINT = window.MDT_COMPILE_ENDPOINT || '';
+window.MDT_COMPILE_TOKEN = window.MDT_COMPILE_TOKEN || ''; // необязательно; в браузере виден всем, это не секрет
 
 function collectMdtBuildRequest() {
   return {
